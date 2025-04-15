@@ -1,0 +1,15 @@
+#menuContainer {
+    padding: 10px;
+    border: 1px solid #ccc;
+    
+    display: flex; 
+    gap: 5px; 
+    justify-content: center; 
+    flex-direction: column;
+}
+
+.menuButton {
+    padding: 10px;
+    cursor: pointer;
+    width: 50px;
+}
