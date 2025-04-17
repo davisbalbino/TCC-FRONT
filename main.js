@@ -9,7 +9,7 @@ document.addEventListener('DOMContentLoaded', () => {
         
         if (itemId) {
             console.log(`ID do item clicado: ${itemId}`);
-            mainMenu.changeMenu(itemId); // Se desejar usar o ID para modificar o menu
+            mainMenu.capturePhotos(15) // Se desejar usar o ID para modificar o menu
         }
     });
 });
