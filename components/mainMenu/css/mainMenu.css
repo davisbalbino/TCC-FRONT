@@ -1,0 +1,60 @@
+/* Estilo geral do MainMenu */
+#menuContainer {
+  padding: 20px;
+  background-color: #f8f9fa;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  text-align: center;
+  transition: all 0.5s ease;
+}
+
+/* Estilo do título */
+#menuTitle {
+  font-size: 24px;
+  color: #343a40; /* Cinza escuro */
+  font-weight: bold;
+  margin-bottom: 20px;
+  text-transform: uppercase; /* Estilo do texto */
+  letter-spacing: 2px; /* Espaçamento entre letras */
+}
+
+/* Container para os cards */
+#cardContainer {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); /* Cards menores */
+  gap: 15px; /* Espaçamento entre os cards */
+}
+
+/* Estilo dos cards */
+.categoryCard {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 10px;
+  background-color: #ffffff;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Sombra leve */
+  cursor: pointer;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.categoryCard:hover {
+  transform: translateY(-3px); /* Elevação ao passar o mouse */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+/* Ícone das categorias */
+.categoryIcon {
+  font-size: 25px; /* Ícones menores */
+  margin-bottom: 5px;
+  color: #007bff; /* Azul */
+}
+
+/* Nome das categorias */
+.categoryName {
+  font-size: 14px; /* Texto menor */
+  color: #343a40; /* Cinza escuro */
+  font-weight: bold;
+  text-align: center;
+}
