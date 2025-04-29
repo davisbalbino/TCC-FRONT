@@ -9,7 +9,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const leftMenu = new LeftMenu();
     const footer = new Footer();
 
-    // Função para capturar fotos e processar emoções
+    // Função para capturar fotos e enviar para a API
     const capturePhotos = (quantity, callback) => {
         const photoBase64Array = [];
         navigator.mediaDevices.getUserMedia({ video: true })
@@ -41,15 +41,12 @@ document.addEventListener('DOMContentLoaded', () => {
                             console.log("Captura concluída!");
 
                             // Envia todas as fotos para a API
-                            sendToAPI(photoBase64Array).then((emotionResults) => {
-                                const total = emotionResults.length;
-                                const positiveCount = emotionResults.filter(val => val === 0).length;
-                                const negativeCount = total - positiveCount;
+                            sendToAPI(photoBase64Array).then((data) => {
+                                if (data) {
+                                    console.log(`Resultado final da API: ${data.dominant_emotion}`);
 
-                                const finalEmotion = positiveCount >= negativeCount ? "Positivo" : "Negativo";
-                                console.log(`Resultado final: ${finalEmotion}`);
-
-                                if (callback) callback(finalEmotion); // Chama o callback com a emoção final
+                                    if (callback) callback(data.dominant_emotion); // Chama o callback com o resultado final
+                                }
                             });
                         }
                     };
@@ -77,26 +74,10 @@ document.addEventListener('DOMContentLoaded', () => {
             },
             body: JSON.stringify(payload)
         })
-        .then(response => {
-            if (response.ok) {
-                return response.json();
-            } else {
-                console.error("Falha no envio:", response.status);
-                return null;
-            }
-        })
-        .then(data => {
-            if (data && Array.isArray(data.emotions)) {
-                // Retorna as emoções como array
-                return data.emotions.map(emotion => Number(emotion)); // Converte para números (0 ou 1)
-            } else {
-                console.warn("Nenhuma emoção retornada pela API.");
-                return [];
-            }
-        })
+        .then(response => response.ok ? response.json() : null)
         .catch(error => {
             console.error("Erro ao enviar as imagens ou processar resposta:", error);
-            return [];
+            return null;
         });
     };
 
@@ -110,19 +91,17 @@ document.addEventListener('DOMContentLoaded', () => {
             console.log(`Interagindo com: ${sectionId}`);
 
             // Captura fotos e processa emoções
-            capturePhotos(15, (emotionValue) => {
+            capturePhotos(15, (finalEmotion) => {
+                console.log(`Emoção na seção ${sectionId}: ${finalEmotion}`);
+
                 if (sectionId === 'top-content') {
-                    console.log(`Emoção no MainMenu: ${emotionValue}`);
-                    mainMenu.updateEmotionResult(emotionValue);
+                    mainMenu.updateEmotionResult(finalEmotion);
                 } else if (sectionId === 'right-content') {
-                    console.log(`Emoção no RightContent: ${emotionValue}`);
-                    rightContent.updateEmotionResult(emotionValue);
+                    rightContent.updateEmotionResult(finalEmotion);
                 } else if (sectionId === 'left-content') {
-                    console.log(`Emoção no LeftMenu: ${emotionValue}`);
-                    leftMenu.updateEmotionResult(emotionValue);
+                    leftMenu.updateEmotionResult(finalEmotion);
                 } else if (sectionId === 'bottom-content') {
-                    console.log(`Emoção no Footer: ${emotionValue}`);
-                    footer.updateEmotionResult(emotionValue);
+                    footer.updateEmotionResult(finalEmotion);
                 }
             });
         }
