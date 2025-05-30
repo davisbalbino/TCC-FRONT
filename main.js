@@ -3,15 +3,23 @@ import { RightContent } from "./components/rightContent/rightContent.js";
 import { LeftMenu } from "./components/leftMenu/leftMenu.js";
 import { Footer } from "./components/footer/footer.js";
 
+let isCapturing = false; // Variável global para controle da captura
+
 document.addEventListener('DOMContentLoaded', () => {
     const mainMenu = new MainMenu();
     const rightContent = new RightContent();
     const leftMenu = new LeftMenu();
     const footer = new Footer();
 
-    // Função para capturar fotos e enviar para a API
     const capturePhotos = (quantity, callback) => {
+        if (isCapturing) {
+            console.warn("Já existe uma captura de fotos em andamento. Aguarde o retorno da API.");
+            return;
+        }
+
+        isCapturing = true; // Marca que a captura está ativa
         const photoBase64Array = [];
+
         navigator.mediaDevices.getUserMedia({ video: true })
             .then((stream) => {
                 const videoElement = document.createElement('video');
@@ -21,7 +29,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 videoElement.onloadedmetadata = () => {
                     const canvas = document.createElement('canvas');
                     const context = canvas.getContext('2d');
-
                     let photoCount = 0;
 
                     const capturePhoto = () => {
@@ -30,23 +37,22 @@ document.addEventListener('DOMContentLoaded', () => {
                             canvas.height = videoElement.videoHeight;
                             context.drawImage(videoElement, 0, 0, canvas.width, canvas.height);
 
-                            // Converte a imagem para base64 (removendo o header)
                             const photoBase64 = canvas.toDataURL('image/png').split(',')[1];
-                            photoBase64Array.push(photoBase64); // Adiciona a foto ao array
+                            photoBase64Array.push(photoBase64);
 
                             photoCount++;
-                            setTimeout(capturePhoto, 500); // Captura nova foto a cada 500ms
+                            setTimeout(capturePhoto, 500);
                         } else {
                             stream.getTracks().forEach((track) => track.stop());
-                            console.log("Captura concluída!");
 
-                            // Envia todas as fotos para a API
                             sendToAPI(photoBase64Array).then((data) => {
+                                isCapturing = false; // Libera para nova captura
                                 if (data) {
                                     console.log(`Resultado final da API: ${data.dominant_emotion}`);
-
-                                    if (callback) callback(data.dominant_emotion); // Chama o callback com o resultado final
+                                    if (callback) callback(data.dominant_emotion);
                                 }
+                            }).catch(() => {
+                                isCapturing = false; // Libera em caso de erro
                             });
                         }
                     };
@@ -55,15 +61,16 @@ document.addEventListener('DOMContentLoaded', () => {
                 };
             })
             .catch((error) => {
+                isCapturing = false; // Libera para nova captura em caso de erro
                 console.error("Erro ao acessar a câmera:", error);
             });
     };
 
     const sendToAPI = (base64ImagesArray) => {
-        const url = "http://127.0.0.1:5000/api/analyze_emotion"; // URL fornecida
+        const url = "http://127.0.0.1:5000/api/analyze_emotion";
 
         const payload = {
-            images: base64ImagesArray, // Envia o array de imagens
+            images: base64ImagesArray,
             fileNamePrefix: `foto_${Date.now()}`
         };
 
@@ -81,18 +88,20 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     };
 
-    // Evento de clique global para capturar emoções nas divs principais
     document.addEventListener('click', (event) => {
         const clickedElement = event.target;
-        const parentSection = clickedElement.closest('section'); // Verifica a div principal
+        const parentSection = clickedElement.closest('section');
 
         if (parentSection) {
             const sectionId = parentSection.id;
             console.log(`Interagindo com: ${sectionId}`);
 
-            // Captura fotos e processa emoções
-            capturePhotos(15, (finalEmotion) => {
+            capturePhotos(10, (finalEmotion) => {
                 console.log(`Emoção na seção ${sectionId}: ${finalEmotion}`);
+
+                document.getElementById('emotion-content').innerHTML = `
+                    <p>Emoção detectada: ${finalEmotion}</p>
+                `
 
                 if (sectionId === 'top-content') {
                     mainMenu.updateEmotionResult(finalEmotion);

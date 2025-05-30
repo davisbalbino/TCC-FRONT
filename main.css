@@ -41,5 +41,19 @@ body {
     border-radius: 8px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     display: flex;
-    flex-direction: column; /* Facilita organizar elementos internos */
+    flex-direction: column; 
+}
+
+
+#emotion-content{
+    background-color: #FFF;
+    position: absolute;
+    right: 15px;
+    top: 15px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 15px;
+    box-shadow: 0 5px 5px 0px #5a5a5a;
+    z-index: 9999;
 }
