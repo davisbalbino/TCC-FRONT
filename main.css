@@ -53,6 +53,7 @@ body {
     display: flex;
     align-items: center;
     justify-content: center;
+    flex-direction: column;
     padding: 15px;
     box-shadow: 0 5px 5px 0px #5a5a5a;
     z-index: 9999;

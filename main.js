@@ -44,12 +44,17 @@ document.addEventListener('DOMContentLoaded', () => {
                             setTimeout(capturePhoto, 500);
                         } else {
                             stream.getTracks().forEach((track) => track.stop());
+                            const startTime = performance.now();
 
                             sendToAPI(photoBase64Array).then((data) => {
+                                const endTime = performance.now(); // Marca o fim do processamento
+                                const duration = ((endTime - startTime) / 1000).toFixed(2); // Tempo em segundos
+
+
                                 isCapturing = false; // Libera para nova captura
                                 if (data) {
                                     console.log(`Resultado final da API: ${data.dominant_emotion}`);
-                                    if (callback) callback(data.dominant_emotion);
+                                    if (callback) callback(data.dominant_emotion,duration);
                                 }
                             }).catch(() => {
                                 isCapturing = false; // Libera em caso de erro
@@ -67,7 +72,7 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     const sendToAPI = (base64ImagesArray) => {
-        const url = "http://127.0.0.1:5000/api/analyze_emotion";
+        const url = "https://tcc-api-production.up.railway.app/api/analyze_emotion";
 
         const payload = {
             images: base64ImagesArray,
@@ -96,11 +101,12 @@ document.addEventListener('DOMContentLoaded', () => {
             const sectionId = parentSection.id;
             console.log(`Interagindo com: ${sectionId}`);
 
-            capturePhotos(10, (finalEmotion) => {
+            capturePhotos(10, (finalEmotion, duration) => {
                 console.log(`Emoção na seção ${sectionId}: ${finalEmotion}`);
 
                 document.getElementById('emotion-content').innerHTML = `
                     <p>Emoção detectada: ${finalEmotion}</p>
+                    <p>Tempo de processamento: ${duration} segundos</p>
                 `
 
                 if (sectionId === 'top-content') {
